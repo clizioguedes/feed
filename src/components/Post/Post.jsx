@@ -36,6 +36,16 @@ export function Post({ id, author, content, publishedAt }) {
     setNewCommentText(event.target.value);
   }
 
+  function deleteComment(commentToDelete) {
+    const commentsWithoutDeleteOne = comments.filter(
+      (comment) => comment !== commentToDelete
+    );
+
+    setComments(commentsWithoutDeleteOne);
+  }
+
+  const isNewCommentInvalid = newCommentText.length < 5;
+
   return (
     <article className={styles.post}>
       <header>
@@ -84,13 +94,21 @@ export function Post({ id, author, content, publishedAt }) {
           value={newCommentText}
         />
         <footer>
-          <button type="submit">Publicar</button>
+          <button type="submit" disabled={isNewCommentInvalid}>
+            Publicar
+          </button>
         </footer>
       </form>
 
       <div className={styles.commentList}>
         {comments.map((comment, index) => {
-          return <Comment key={`${comment}_${index}`} content={comment} />;
+          return (
+            <Comment
+              key={`${comment}_${index}`}
+              content={comment}
+              onDeleteComment={deleteComment}
+            />
+          );
         })}
       </div>
     </article>
