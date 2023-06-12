@@ -4,10 +4,27 @@ import ptBR from "date-fns/locale/pt-BR";
 import { Avatar } from "../Avatar/Avatar";
 import { Comment } from "./Comment/Comment";
 import styles from "./Post.module.css";
-import { useState } from "react";
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from "react";
 
-export function Post({ id, author, content, publishedAt }) {
-  const [comments, setComments] = useState([]);
+interface Content {
+  id: number;
+  type: string;
+  content: string;
+}
+
+interface PostProps {
+  id: number;
+  author: {
+    name: string;
+    role: string;
+    avatarUrl: string;
+  };
+  publishedAt: Date;
+  content: Content[];
+}
+
+export function Post({ id, author, content, publishedAt }: PostProps) {
+  const [comments, setComments] = useState<string[]>([]);
 
   const [newCommentText, setNewCommentText] = useState("");
 
@@ -24,7 +41,7 @@ export function Post({ id, author, content, publishedAt }) {
     addSuffix: true,
   });
 
-  function handleCreateNewComment(event) {
+  function handleCreateNewComment(event: FormEvent) {
     event.preventDefault();
 
     setComments([...comments, newCommentText]);
@@ -32,11 +49,15 @@ export function Post({ id, author, content, publishedAt }) {
     setNewCommentText("");
   }
 
-  function handleNewCommentChange(event) {
+  function handleNewCommentChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setNewCommentText(event.target.value);
   }
 
-  function deleteComment(commentToDelete) {
+  function handleNewCommentInvalid(event: InvalidEvent<HTMLTextAreaElement>) {
+    event.target.setCustomValidity("Esse campo é obrigatório");
+  }
+
+  function deleteComment(commentToDelete: string) {
     const commentsWithoutDeleteOne = comments.filter(
       (comment) => comment !== commentToDelete
     );
@@ -92,6 +113,7 @@ export function Post({ id, author, content, publishedAt }) {
           placeholder="Deixe um comentário"
           onChange={handleNewCommentChange}
           value={newCommentText}
+          onInvalid={handleNewCommentInvalid}
         />
         <footer>
           <button type="submit" disabled={isNewCommentInvalid}>
